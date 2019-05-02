@@ -1,0 +1,9 @@
+.ColorBox {
+  display: flex;
+  justify-content: center;
+  flex-flow: wrap;
+}
+
+.ColorBox-square {
+  width: calc(100%/6)
+}
