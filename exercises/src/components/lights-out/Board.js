@@ -1,88 +1,116 @@
-import React, {Component} from "react";
-import Cell from "./Cell";
+import React, { Component } from 'react';
+import { genRandom } from '../utils/numbers';
+import Cell from './Cell';
 import './Board.css';
 
-
-/** Game board of Lights out.
- *
- * Properties:
- *
- * - nrows: number of rows of board
- * - ncols: number of cols of board
- * - chanceLightStartsOn: float, chance any cell is lit at start of game
- *
- * State:
- *
- * - hasWon: boolean, true when board is all off
- * - board: array-of-arrays of true/false
- *
- *    For this board:
- *       .  .  .
- *       O  O  .     (where . is off, and O is on)
- *       .  .  .
- *
- *    This would be: [[f, f, f], [t, t, f], [f, f, f]]
- *
- *  This should render an HTML table of individual <Cell /> components.
- *
- *  This doesn't handle any clicks --- clicks are on individual cells
- *
- **/
-
 class Board extends Component {
-
   constructor(props) {
     super(props);
-
-    // TODO: set initial state
+    this.state = {
+      solution: [],
+      cells: Array.from({length: props.size*props.size}, ()=>false),
+      steps: 0,
+    };
+    this.showSolution = this.showSolution.bind(this);
+    this.onCellClick = this.onCellClick.bind(this);
+    this.newGame = this.newGame.bind(this);
   }
-
-  /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
-
-  createBoard() {
-    let board = [];
-    // TODO: create array-of-arrays of true/false values
-    return board
+  static defaultProps = {
+    size: 5
   }
-
-  /** handle changing a cell: update board & determine if winner */
-
-  flipCellsAround(coord) {
-    let {ncols, nrows} = this.props;
-    let board = this.state.board;
-    let [y, x] = coord.split("-").map(Number);
-
-
-    function flipCell(y, x) {
-      // if this coord is actually on board, flip it
-
-      if (x >= 0 && x < ncols && y >= 0 && y < nrows) {
-        board[y][x] = !board[y][x];
-      }
+  generateCells(size){
+    const boardLen = size*size;
+    const targetSteps = 8;
+    let cells = Array.from({length: boardLen}, ()=>false)
+    const solution = [];
+    while(solution.length < targetSteps){
+      const newSol = genRandom(boardLen);
+      solution.indexOf(newSol) < 0 && solution.push(newSol);
     }
 
-    // TODO: flip this cell and the cells around it
-
-    // win when every cell is turned off
-    // TODO: determine is the game has been won
-
-    this.setState({board, hasWon});
+    solution.forEach(sol => {
+      cells = this.toggleAdjacentCells(cells, sol)
+    })
+    return {
+      cells: cells,
+      solution: solution.sort((a,b)=> a>b?1:-1)
+    }
   }
 
+  showSolution(){
+    const {solution} = this.state;
+    console.log(solution);
+  }
 
-  /** Render game board or winning message. */
+  newGame(){
+    const {cells, solution} = this.generateCells(this.props.size);
+    this.setState({
+      cells: cells,
+      solution: solution,
+      steps: 0
+    })
+  }
 
+  toggleAdjacentCells(cells, index){
+    const {size} = this.props;
+    const right = index % size < size - 1 ? index + 1 : null,
+      left = index % size ? index - 1 : null,
+      top = index >= size ? index - size : null,
+      down = index < (size * (size-1) ) ? index + size : null;
+
+    right !== null && (cells[right] = !cells[right])
+    left !== null && (cells[left] = !cells[left])
+    top !== null && (cells[top] = !cells[top])
+    down !== null && (cells[down] = !cells[down])
+    cells[index] = !cells[index]
+
+    return cells;
+  }
+
+  onCellClick(index) {
+    const {cells, steps} = this.state;
+    this.setState({
+      cells: this.toggleAdjacentCells(cells, index),
+      steps: steps + 1,
+    })
+  }
   render() {
+    const {cells, steps} = this.state;
+    const {size} = this.props;
+    const boardCells = cells.map((cell, index) =>
+      ( <Cell
+          key={`cell-${index}`}
+          width={size}
+          index={index}
+          value={cell}
+          click={this.onCellClick}
+        />
+      )
+    );
 
-    // if the game is won, just show a winning msg & render nothing else
+    const isSolved = 
+      (cells.filter(cell => cell).length === 0
+      && steps)
+      ? <h1>Congratulations! You Win!</h1>
+      : null;
 
-    // TODO
 
-    // make table board
-
-    // TODO
+    return (
+      <div className='Board'>
+        <div className='Board-title'>
+          <span className='neon'>Lights</span>
+          <span className='flux'>Out </span>
+        </div>
+        <div className='Board-cells'>
+          {boardCells}
+        </div>
+        <h3>Moves: {steps} Target: 8</h3>
+        <button onClick={this.newGame}>New Game</button>
+        <button onClick={this.showSolution}>Solution</button>
+        {isSolved}
+      </div>
+    );
   }
 }
-
 
 export default Board;

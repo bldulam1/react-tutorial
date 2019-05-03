@@ -1,39 +1,25 @@
-import React, {Component} from 'react'
-import "./Cell.css"
-
-
-/** A single cell on the board.
- *
- * This has no state --- just two props:
- *
- * - flipCellsAroundMe: a function rec'd from the board which flips this
- *      cell and the cells around of it
- *
- * - isLit: boolean, is this cell lit?
- *
- * This handles clicks --- by calling flipCellsAroundMe
- *
- **/
+import React, { Component } from 'react';
+import './Cell.css';
 
 class Cell extends Component {
   constructor(props) {
     super(props);
-    this.handleClick = this.handleClick.bind(this);
+    this.state = {  };
   }
-
-  handleClick(evt) {
-    // call up to the board to flip cells around this cell
-    this.props.flipCellsAroundMe();
-  }
-
   render() {
-    let classes = "Cell" + (this.props.isLit ? " Cell-lit" : "");
-
+    const {value, click, index, width} = this.props;
+    const dimensions = {
+      width: `${100/(width+1)}%`,
+      paddingTop: `${100/(width+1)}%`
+    }
     return (
-        <td className={classes} onClick={this.handleClick} />
-    )
+      <div
+        className={`Cell ${value && 'Cell-lit'}`}
+        onClick={()=>click(index)}
+        style={dimensions}>
+      </div>
+    );
   }
 }
 
-
-export default Cell
+export default Cell;

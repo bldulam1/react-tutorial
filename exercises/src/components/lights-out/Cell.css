@@ -1,9 +1,10 @@
 .Cell {
-  height: 100px;
-  width: 100px;
-  background-color: darkgray;
+  position: relative;
+
+  background-color: #37474F;
+  border: 1px solid black;
 }
 
 .Cell-lit {
-  background-color: white;
+  background-color: #00BCD4;
 }
