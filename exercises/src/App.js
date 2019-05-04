@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
-import BoxList from './components/color-box-maker/BoxList';
+import Deck from './components/card-deck/Deck';
+// import BoxList from './components/color-box-maker/BoxList';
 // import RollDice from './components/dice-exercise/RollDice/RollDice';
 // import CoinFlip from './components/coin-flip/CoinFlip';
 // import ColorBox from './components/color-boxes/ColorBox';
@@ -9,7 +10,7 @@ import BoxList from './components/color-box-maker/BoxList';
 function App() {
   return (
     <div className="App">
-      <BoxList/>
+      <Deck/>
     </div>
   );
 }
